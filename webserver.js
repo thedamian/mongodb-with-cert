@@ -47,11 +47,8 @@ app.get("/movies/:movietitle", async (req,res)=> {
 })
 
 app.post("/movie/",(req,res)=> {
-
     const newmovie = req.body;
-
     movies.insertOne(newmovie,(err,insertedid)=> {
-
       if (err) {
         console.error(err)
       } else {
@@ -60,7 +57,6 @@ app.post("/movie/",(req,res)=> {
         res.status(201).json(newmovie)
       }
     })
-
 })
 
 app.listen(port, () => {
