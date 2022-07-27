@@ -35,20 +35,31 @@ app.get("/movies/:movietitle", async (req,res)=> {
   console.log(`Looking for movie ${movietitle}`)
   const query = {title: {'$regex': movietitle, '$options': 'i'}}; // anything with the words requested and case insensitive (hence i)
   
-  // Done where we fount all documents and console.out the count
-  const findOptions = {}
-  let moviesFound = []
-  console.log("Movies found: ", await moviesCollection.countDocuments(query))
-  const docs =  moviesCollection.find(query,findOptions)
-  await docs.forEach((movie)=> {
-    moviesFound.push(movie)
+  moviesCollection.find(query).toArray((err,moviesFound)=> {
+    if (err) {
+      console.error(err)
+      return 
+    }
+    res.status(200).json(moviesFound)
   })
-  res.status(200).json(moviesFound)
+  
+
+  // Done with await
+  // const findOptions = {}
+  // let moviesFound = []
+  // console.log("Movies found: ", await moviesCollection.countDocuments(query))
+  // const docs =  moviesCollection.find(query,findOptions)
+  // await docs.forEach((movie)=> {
+  //   moviesFound.push(movie)
+  // })
+  // res.status(200).json(moviesFound)
+
+
 })
 
 app.post("/movie/",(req,res)=> {
     const newmovie = req.body;
-    movies.insertOne(newmovie,(err,insertedid)=> {
+    moviesCollection.insertOne(newmovie,(err,insertedid)=> {
       if (err) {
         console.error(err)
       } else {
