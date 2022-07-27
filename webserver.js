@@ -3,7 +3,7 @@ const { MongoClient } = require("mongodb");
 const credentials = require("./credentials")
 const client = new MongoClient(credentials);
 const database = client.db('sample_mflix');
-const movies = database.collection('movies');
+const moviesCollection = database.collection('movies');
 const express = require("express")
 const app = express()
 const port = 3001
@@ -13,12 +13,13 @@ app.get("/",(req,res)=> {
   res.status(200).send("Yes! can I help you?")
 })
 
-app.get("/movies/:movietitle", (req,res)=> {
+app.get("/onemovie/:movietitle",  (req,res)=> {
   const movietitle = req.params.movietitle
   console.log(`Looking for movie ${movietitle}`)
-  const query = { title: movietitle };
-
-  const movie =  movies.findOne(query, (err,movie) => {
+  const query = {title: {'$regex': movietitle, '$options': 'i'}}; // anything with the words requested and case insensitive (hence i)
+  
+  // "findOne" returns the FIRST one found
+  moviesCollection.findOne(query, (err,movie) => {
     if (movie) {
       console.log("I found it!")
       res.status(200).json(movie);
@@ -27,6 +28,22 @@ app.get("/movies/:movietitle", (req,res)=> {
       res.status(418).json({found:false})
     }
   })
+})
+
+app.get("/movies/:movietitle", async (req,res)=> {
+  const movietitle = req.params.movietitle
+  console.log(`Looking for movie ${movietitle}`)
+  const query = {title: {'$regex': movietitle, '$options': 'i'}}; // anything with the words requested and case insensitive (hence i)
+  
+  // Done where we fount all documents and console.out the count
+  const findOptions = {}
+  let moviesFound = []
+  console.log("Movies found: ", await moviesCollection.countDocuments(query))
+  const docs =  moviesCollection.find(query,findOptions)
+  await docs.forEach((movie)=> {
+    moviesFound.push(movie)
+  })
+  res.status(200).json(moviesFound)
 })
 
 app.post("/movie/",(req,res)=> {
