@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
 // Replace the uri string with your connection string.
-const credentials = require("./credentials")
+const credentials = require("./credentials").uri
 const client = new MongoClient(credentials);
 const database = client.db('sample_mflix');
 const moviesCollection = database.collection('movies');
